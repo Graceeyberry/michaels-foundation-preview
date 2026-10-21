@@ -6,7 +6,7 @@
 <style>
 html,body{margin:0;padding:0;background:#0f1a38;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 body.light{background:#efeada;color:#1c2c58}
-#wrap{position:relative;margin:0 auto;width:100%;max-width:1440px}
+#wrap{position:relative;margin:0 auto;width:100%}
 #wrap.phone{max-width:390px}
 #pg{position:relative;width:100%;line-height:0}
 #pg img{width:100%;height:auto;display:block;user-select:none;-webkit-user-drag:none}
@@ -31,7 +31,7 @@ body.light{background:#efeada;color:#1c2c58}
 <div id="note">Design preview. Buttons and menus are clickable.</div>
 <script>
 (async function(){
-const data=await (await fetch('data.json?v=1')).json();
+const data=await (await fetch('data.json?v=2')).json();
 const F=data.frames, L=data.links, HOME=data.home;
 const q=new URLSearchParams(location.search);
 let theme=q.get('theme')||localStorage.getItem('mf_theme')||'dark';
