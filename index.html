@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Michael's Foundation – Website Redesign Preview</title>
+<meta name="robots" content="noindex">
+<style>
+html,body{margin:0;padding:0;background:#0f1a38;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body.light{background:#efeada;color:#1c2c58}
+#wrap{position:relative;margin:0 auto;width:100%;max-width:1440px}
+#wrap.phone{max-width:390px}
+#pg{position:relative;width:100%;line-height:0}
+#pg img{width:100%;height:auto;display:block;user-select:none;-webkit-user-drag:none}
+.hs{position:absolute;display:block;cursor:pointer;background:transparent;border:0;padding:0;margin:0;border-radius:6px}
+.hs:focus-visible{outline:2px solid #8cc084}
+#bar{position:fixed;right:12px;bottom:12px;z-index:50;display:flex;gap:6px;background:rgba(15,26,56,.92);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 8px;font-size:12px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+#bar button{background:transparent;border:0;color:#fff;padding:6px 10px;border-radius:999px;cursor:pointer;font-size:12px}
+#bar button.on{background:#8cc084;color:#0f1a38;font-weight:600}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0f1a38;color:#fff;font-size:15px;z-index:60;transition:opacity .25s}
+#loading.off{opacity:0;pointer-events:none}
+#note{position:fixed;left:12px;bottom:12px;z-index:50;font-size:11px;opacity:.7;background:rgba(0,0,0,.45);color:#fff;padding:5px 9px;border-radius:999px}
+@media (max-width:700px){#note{display:none}}
+</style></head>
+<body>
+<div id="loading">Loading preview…</div>
+<div id="wrap"><div id="pg"></div></div>
+<div id="bar">
+  <button id="bDark">Dark</button><button id="bLight">Light</button>
+  <span style="width:1px;background:rgba(255,255,255,.25);margin:0 2px"></span>
+  <button id="bDesk">Desktop</button><button id="bMob">Mobile</button>
+</div>
+<div id="note">Design preview. Buttons and menus are clickable.</div>
+<script>
+(async function(){
+const data=await (await fetch('data.json?v=1')).json();
+const F=data.frames, L=data.links, HOME=data.home;
+const q=new URLSearchParams(location.search);
+let theme=q.get('theme')||localStorage.getItem('mf_theme')||'dark';
+let device=q.get('device')||(window.innerWidth<700?'mobile':'desktop');
+const setOf=()=> (device==='mobile'?'m':'d')+(theme==='light'?'l':'d');
+const byName={};for(const id in F){const f=F[id];(byName[f.n.replace(/ \/ (Desktop|Mobile)$/,'')]=byName[f.n.replace(/ \/ (Desktop|Mobile)$/,'')]||{})[f.s]=id;}
+function mapTo(id,set){const f=F[id];if(!f)return HOME[set];if(f.s===set)return id;const key=f.n.replace(/ \/ (Desktop|Mobile)$/,'');return (byName[key]&&byName[key][set])||HOME[set];}
+function cur(){const h=decodeURIComponent(location.hash.replace(/^#\/?/,''));return F[h]?h:HOME[setOf()];}
+function go(id,push=true){if(push)location.hash='/'+id;else render();}
+function img(id){return 'w/'+id.replace(':','-')+'.jpg';}
+function render(){
+  let id=cur();const set=setOf();const want=mapTo(id,set);
+  if(want!==id){history.replaceState(null,'','#/'+want);id=want;}
+  const f=F[id];document.body.classList.toggle('light',theme==='light');
+  document.getElementById('wrap').classList.toggle('phone',device==='mobile'&&window.innerWidth>=700);
+  const pg=document.getElementById('pg');pg.innerHTML='';
+  const im=new Image();im.src=img(id);im.alt=f.n;pg.appendChild(im);
+  const W=f.w,H=f.h;
+  for(const [x,y,w,h,to] of (L[id]||[])){
+    const a=document.createElement(to.startsWith('url:')?'a':'button');a.className='hs';
+    a.style.left=(x/W*100)+'%';a.style.top=(y/H*100)+'%';a.style.width=(w/W*100)+'%';a.style.height=(h/H*100)+'%';
+    if(to.startsWith('url:')){a.href=to.slice(4);a.target='_blank';a.rel='noopener';a.setAttribute('aria-label','External link');}
+    else if(to==='back'){a.onclick=()=>{if(history.length>1)history.back();else go(HOME[set]);};a.setAttribute('aria-label','Close');}
+    else{a.onclick=()=>go(to);a.setAttribute('aria-label',(F[to]||{}).n||'Open');}
+    pg.appendChild(a);
+  }
+  window.scrollTo(0,0);
+  document.getElementById('bDark').classList.toggle('on',theme==='dark');document.getElementById('bLight').classList.toggle('on',theme==='light');
+  document.getElementById('bDesk').classList.toggle('on',device==='desktop');document.getElementById('bMob').classList.toggle('on',device==='mobile');
+  document.getElementById('loading').classList.add('off');
+}
+document.getElementById('bDark').onclick=()=>{theme='dark';localStorage.setItem('mf_theme',theme);render();};
+document.getElementById('bLight').onclick=()=>{theme='light';localStorage.setItem('mf_theme',theme);render();};
+document.getElementById('bDesk').onclick=()=>{device='desktop';render();};
+document.getElementById('bMob').onclick=()=>{device='mobile';render();};
+window.addEventListener('hashchange',render);
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(!q.get('device')){const d=window.innerWidth<700?'mobile':'desktop';if(d!==device){device=d;render();}}},200);});
+render();
+})();
+</script></body></html>
