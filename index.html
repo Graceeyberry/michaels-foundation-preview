@@ -31,7 +31,7 @@ body.light{background:#efeada;color:#1c2c58}
 <div id="note">Design preview. Buttons and menus are clickable.</div>
 <script>
 (async function(){
-const data=await (await fetch('data.json?v=3')).json();
+const data=await (await fetch('data.json?v=4')).json();
 const F=data.frames, L=data.links, HOME=data.home;
 const q=new URLSearchParams(location.search);
 let theme=q.get('theme')||localStorage.getItem('mf_theme')||'dark';
