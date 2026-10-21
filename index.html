@@ -31,7 +31,7 @@ body.light{background:#efeada;color:#1c2c58}
 <div id="note">Design preview. Buttons and menus are clickable.</div>
 <script>
 (async function(){
-const data=await (await fetch('data.json?v=2')).json();
+const data=await (await fetch('data.json?v=3')).json();
 const F=data.frames, L=data.links, HOME=data.home;
 const q=new URLSearchParams(location.search);
 let theme=q.get('theme')||localStorage.getItem('mf_theme')||'dark';
@@ -50,7 +50,7 @@ function render(){
   const pg=document.getElementById('pg');pg.innerHTML='';
   const im=new Image();im.src=img(id);im.alt=f.n;pg.appendChild(im);
   const W=f.w,H=f.h;
-  for(const [x,y,w,h,to] of (L[id]||[])){
+  const hs=(L[id]||[]).slice().sort((a,b)=>(b[2]*b[3])-(a[2]*a[3]));for(const [x,y,w,h,to] of hs){
     const a=document.createElement(to.startsWith('url:')?'a':'button');a.className='hs';
     a.style.left=(x/W*100)+'%';a.style.top=(y/H*100)+'%';a.style.width=(w/W*100)+'%';a.style.height=(h/H*100)+'%';
     if(to.startsWith('url:')){a.href=to.slice(4);a.target='_blank';a.rel='noopener';a.setAttribute('aria-label','External link');}
